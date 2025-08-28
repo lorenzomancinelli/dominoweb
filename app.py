@@ -103,6 +103,10 @@ body { font-family: Arial; text-align:center; margin:0; padding:0; }
     </div>
     <div id="center-info" style="flex:1; text-align:center;">
       <h1>Domino Frazioni</h1>
+       <button onclick="resetGame()" 
+            style="padding:15px 30px; font-size:14px; background-color:#2A7FFF; color:white; border:none; border-radius:8px; cursor:pointer;">
+          <strong>RIAVVIA PARTITA</strong>
+       </button>
       <p style="font-size:16px; color:gray;">
         Abbina le frazioni equivalenti tra le tessere della tua collezione e quelle del treno.<br>
         Vince chi arriva prima a 10 punti.
@@ -154,6 +158,13 @@ function updateName(playerNum){
   document.getElementById("shelf_title"+playerNum).innerText=name;
   render();
 }
+function resetGame(){
+  fetch("/reset", {method:"POST"}).then(()=> {
+    // ricarica lo stato e aggiorna la UI
+    render();
+  });
+}
+
 function updateAvatar(playerNum){
   const select=document.getElementById("avatar"+playerNum);
   document.getElementById("avatar_img"+playerNum).src="/static/"+select.value;
@@ -276,6 +287,11 @@ def state():
     game_state["last_message"] = ""
     return jsonify(snapshot)
 
+@app.route("/reset", methods=["POST"])
+def reset():
+    games[session["game_id"]] = create_new_game()
+    return jsonify({"message": "Partita resettata"})
+
 @app.route("/timeout", methods=["POST"])
 def timeout():
     game_state = games[session["game_id"]]
@@ -286,6 +302,7 @@ def timeout():
     game_state["current_player"] = 3 - game_state["current_player"]
     game_state["timer"] = 20
     return jsonify({"message": f"Turno cambiato al giocatore {game_state['current_player']}"})
+
 
 @app.route("/place", methods=["POST"])
 def place():
@@ -361,4 +378,3 @@ def place():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
