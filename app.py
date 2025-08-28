@@ -281,11 +281,11 @@ def timeout():
     game_state = games[session["game_id"]]
     if game_state["winner"]:
         return jsonify({"message": "La partita è già finita"})
-    if game_state["timer"] <= 0:
-        game_state["current_player"] = 3 - game_state["current_player"]
-        game_state["timer"] = 20
-        return jsonify({"message": f"Turno cambiato al giocatore {game_state['current_player']}"})
-    return jsonify({"message": "Timer non ancora scaduto"})
+
+    # non controlliamo più il timer del server, ci fidiamo del client
+    game_state["current_player"] = 3 - game_state["current_player"]
+    game_state["timer"] = 20
+    return jsonify({"message": f"Turno cambiato al giocatore {game_state['current_player']}"})
 
 @app.route("/place", methods=["POST"])
 def place():
